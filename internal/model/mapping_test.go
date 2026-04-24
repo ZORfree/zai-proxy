@@ -148,6 +148,32 @@ func TestGetTargetModel_GLM5Thinking(t *testing.T) {
 	}
 }
 
+// ===== GLM-5.1 =====
+
+func TestParseModelName_GLM51(t *testing.T) {
+	base, thinking, _, _ := ParseModelName("glm-5.1")
+	if base != "glm-5.1" {
+		t.Errorf("base = %q, want %q", base, "glm-5.1")
+	}
+	if thinking {
+		t.Error("thinking should be false")
+	}
+}
+
+func TestGetTargetModel_GLM51(t *testing.T) {
+	target := GetTargetModel("glm-5.1")
+	if target != "GLM-5.1" {
+		t.Errorf("GetTargetModel(glm-5.1) = %q, want %q", target, "GLM-5.1")
+	}
+}
+
+func TestGetTargetModel_GLM51Thinking(t *testing.T) {
+	target := GetTargetModel("glm-5.1-thinking")
+	if target != "GLM-5.1" {
+		t.Errorf("GetTargetModel(glm-5.1-thinking) = %q, want %q", target, "GLM-5.1")
+	}
+}
+
 // ===== IsToolsModel =====
 
 func TestIsToolsModel_True(t *testing.T) {
@@ -163,6 +189,18 @@ func TestIsToolsModel_True(t *testing.T) {
 		if !IsToolsModel(m) {
 			t.Errorf("IsToolsModel(%q) = false, want true", m)
 		}
+	}
+}
+
+// ===== ResolveClaudeModel =====
+
+func TestResolveClaudeModel_Opus(t *testing.T) {
+	resolved, thinking := ResolveClaudeModel("claude-opus-4-6", false)
+	if resolved != "glm-5.1-thinking-tools" {
+		t.Errorf("ResolveClaudeModel(claude-opus-4-6) = %q, want %q", resolved, "glm-5.1-thinking-tools")
+	}
+	if !thinking {
+		t.Error("thinking should be true for opus")
 	}
 }
 
@@ -224,6 +262,8 @@ func TestModelList_ContainsToolsVariants(t *testing.T) {
 		"glm-4.7-tools-thinking": false,
 		"glm-5":                  false,
 		"glm-5-tools":            false,
+		"glm-5.1":                false,
+		"glm-5.1-tools":          false,
 	}
 
 	for _, m := range ModelList {

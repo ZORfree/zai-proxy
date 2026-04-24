@@ -8,6 +8,7 @@ var BaseModelMapping = map[string]string{
 	"glm-4.6":      "GLM-4-6-API-V1",
 	"glm-4.7":      "glm-4.7",
 	"glm-5":        "glm-5",
+	"glm-5.1":      "GLM-5.1",
 	"glm-4.5-v":    "glm-4.5v",
 	"glm-4.6-v":    "glm-4.6v",
 	"glm-4.5-air":  "0727-106B-API",
@@ -16,8 +17,8 @@ var BaseModelMapping = map[string]string{
 
 // Claude 模型名到 GLM 基础模型名的映射
 var ClaudeModelMapping = map[string]string{
-	"claude-opus-4-6":            "glm-4.7",
-	"claude-opus-4-5-20250514":   "glm-4.7",
+	"claude-opus-4-6":            "glm-5.1",
+	"claude-opus-4-5-20250514":   "glm-5.1",
 	"claude-sonnet-4-6":          "glm-4.7",
 	"claude-sonnet-4-5-20241022": "glm-4.7",
 	"claude-haiku-4-5":           "glm-4.5-air",
@@ -60,6 +61,12 @@ var ModelList = []string{
 	"glm-5-thinking-search",
 	"glm-5-tools",
 	"glm-5-tools-thinking",
+	"glm-5.1",
+	"glm-5.1-thinking",
+	"glm-5.1-thinking-search",
+	"glm-5.1-tools",
+	"glm-5.1-thinking-tools",
+	"glm-5.1-tools-thinking",
 	"glm-4.5-v",
 	"glm-4.6-v",
 	"glm-4.6-v-thinking",

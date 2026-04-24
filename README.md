@@ -194,7 +194,8 @@ curl http://localhost:8000/v1/messages \
 | `glm-4.5` | 0727-360B-API | |
 | `glm-4.6` | GLM-4-6-API-V1 | |
 | `glm-4.7` | glm-4.7 | |
-| `glm-5` | glm-5 | 最新 |
+| `glm-5` | glm-5 | |
+| `glm-5.1` | GLM-5.1 | 最新 |
 | `glm-4.5-v` | glm-4.5v | 视觉 |
 | `glm-4.6-v` | glm-4.6v | 视觉（最新） |
 | `glm-4.5-air` | 0727-106B-API | 轻量 |
@@ -205,8 +206,8 @@ curl http://localhost:8000/v1/messages \
 
 | Claude 模型 | 映射到 | 备注 |
 |-------------|--------|------|
-| `claude-opus-4-6` | glm-4.7 | 自动启用 thinking |
-| `claude-opus-4-5-20250514` | glm-4.7 | 自动启用 thinking |
+| `claude-opus-4-6` | glm-5.1 | 自动启用 thinking |
+| `claude-opus-4-5-20250514` | glm-5.1 | 自动启用 thinking |
 | `claude-sonnet-4-6` | glm-4.7 | |
 | `claude-sonnet-4-5-20241022` | glm-4.7 | |
 | `claude-haiku-4-5` | glm-4.5-air | |
