@@ -14,8 +14,8 @@ WORKDIR /app
 
 COPY --from=builder /app/zai-proxy .
 
-# proxies.txt 可通过 docker run -v ./proxies.txt:/app/proxies.txt 挂载
-VOLUME ["/app/proxies.txt"]
+# data 目录可通过 docker run -v ./data:/app/data 挂载（包含 proxies.txt 等配置文件）
+VOLUME ["/app/data"]
 
 EXPOSE 8000
 

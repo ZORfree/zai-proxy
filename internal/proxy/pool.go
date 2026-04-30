@@ -21,12 +21,12 @@ var (
 	mu      sync.RWMutex
 )
 
-// LoadProxies 从 proxies.txt 文件加载代理列表
+// LoadProxies 从指定路径加载代理列表
 // 格式: ip:port:username:password 或 ip:port
 func LoadProxies(path string) {
 	file, err := os.Open(path)
 	if err != nil {
-		logger.LogInfo("No proxies.txt found, running without proxy")
+		logger.LogInfo("No proxy file found at %s, running without proxy", path)
 		return
 	}
 	defer file.Close()

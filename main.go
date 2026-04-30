@@ -13,7 +13,7 @@ import (
 func main() {
 	config.LoadConfig()
 	logger.InitLogger()
-	proxy.LoadProxies("proxies.txt")
+	proxy.LoadProxies("data/proxies.txt")
 	version.StartVersionUpdater()
 
 	http.HandleFunc("/v1/models", handler.HandleModels)

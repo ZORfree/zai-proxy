@@ -55,12 +55,14 @@ docker run -d --name zai-proxy \
 
 > 镜像仅支持 `linux/amd64` 平台。
 
-#### 挂载代理文件（可选）
+#### 挂载数据目录（可选）
+
+将本地 `data` 目录挂载到容器的 `/app/data`，目录中放置 `proxies.txt` 等配置文件：
 
 ```bash
 docker run -d --name zai-proxy \
   -p 8000:8000 \
-  -v ./proxies.txt:/app/proxies.txt \
+  -v ./data:/app/data \
   ghcr.io/yurika0211/zai-proxy:latest
 ```
 
@@ -107,7 +109,7 @@ docker compose up -d
 
 ## 代理池（可选）
 
-在项目根目录放置 `proxies.txt` 文件，每行一个 SOCKS5 代理，格式：
+在 `data/` 目录下放置 `proxies.txt` 文件（Docker 部署时对应 `/app/data/proxies.txt`），每行一个 SOCKS5 代理，格式：
 
 ```
 ip:port:username:password
