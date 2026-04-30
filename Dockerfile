@@ -10,22 +10,14 @@ RUN CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.Version=$(date +%Y%m%d.%
 
 FROM alpine:latest
 
-RUN apk add --no-cache \
-    ca-certificates \
-    openssl-dev \
-    curl-dev \
-    rust
+RUN apk add --no-cache ca-certificates
+
 
 WORKDIR /app
 
 COPY --from=builder /app/zai-proxy .
 
 ENV TZ=Asia/Shanghai
-
-RUN apk add --no-cache \
-    tzdata \
-    ca-certificates \
-    openssl
 
 # data 目录可通过 docker run -v ./data:/app/data 挂载（包含 proxies.txt 等配置文件）
 VOLUME ["/app/data"]
