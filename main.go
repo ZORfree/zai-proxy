@@ -16,7 +16,7 @@ var Version = "dev"
 func main() {
 	config.LoadConfig()
 	logger.InitLogger()
-	proxy.LoadProxies("data/proxies.txt")
+	proxy.InitProxies("data/proxies.txt", config.Cfg.ProxyURL)
 	version.StartVersionUpdater()
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
