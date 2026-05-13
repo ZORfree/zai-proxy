@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
@@ -18,6 +19,13 @@ import (
 	builtintools "zai-proxy/internal/tools"
 	"zai-proxy/internal/version"
 )
+
+// generateRandomIP generates a random public IP address for X-Forwarded-For
+func generateRandomIP() string {
+	firstOctet := []int{36, 42, 58, 60, 61, 101, 106, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 139, 140, 144, 150, 153, 157, 163, 171, 175, 180, 182, 183, 202, 210, 211, 218, 219, 220, 221, 222, 223}
+	first := firstOctet[rand.Intn(len(firstOctet))]
+	return fmt.Sprintf("%d.%d.%d.%d", first, rand.Intn(256), rand.Intn(256), rand.Intn(254)+1)
+}
 
 func ExtractLatestUserContent(messages []model.Message) string {
 	for i := len(messages) - 1; i >= 0; i-- {
@@ -66,6 +74,12 @@ func MakeUpstreamRequest(token string, messages []model.Message, modelName strin
 	autoWebSearch := model.IsSearchModel(modelName)
 	if targetModel == "glm-4.5v" || targetModel == "glm-4.6v" {
 		autoWebSearch = false
+	}
+
+	hasTools := len(tools) > 0
+	if hasTools {
+		autoWebSearch = false
+		logger.LogDebug("[Upstream] Disabled auto web search because custom tools were provided")
 	}
 
 	var mcpServers []string
@@ -197,10 +211,11 @@ func MakeUpstreamRequest(token string, messages []model.Message, modelName strin
 		"signature_prompt": latestUserContent,
 		"params":           map[string]interface{}{},
 		"features": map[string]interface{}{
-			"image_generation": false,
-			"web_search":       false,
-			"auto_web_search":  autoWebSearch,
-			"preview_mode":     true,
+			"image_generation": true,
+			"web_search":       true,
+			"auto_web_search":  autoWebSearch && !hasTools,
+			"preview_mode":     false,
+			"flags":            []string{},
 			"enable_thinking":  enableThinking,
 		},
 		"chat_id": chatID,
@@ -235,14 +250,20 @@ func MakeUpstreamRequest(token string, messages []model.Message, modelName strin
 		return nil, "", err
 	}
 
+	randomIP := generateRandomIP()
+
 	req.Header.Set("Authorization", "Bearer "+token)
 	req.Header.Set("X-FE-Version", version.GetFeVersion())
 	req.Header.Set("X-Signature", signature)
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Connection", "keep-alive")
 	req.Header.Set("Origin", "https://chat.z.ai")
-	req.Header.Set("Referer", fmt.Sprintf("https://chat.z.ai/c/%s", uuid.New().String()))
+	req.Header.Set("Referer", fmt.Sprintf("https://chat.z.ai/c/%s", chatID))
 	req.Header.Set("User-Agent", uarand.GetRandom())
+	req.Header.Set("X-Forwarded-For", randomIP)
+	req.Header.Set("X-Real-IP", randomIP)
+
+	logger.LogDebug("Upstream request: model=%s, messages=%d, XFF=%s", targetModel, len(upstreamMessages), randomIP)
 
 	client := proxy.GetHTTPClient()
 	resp, err := client.Do(req)

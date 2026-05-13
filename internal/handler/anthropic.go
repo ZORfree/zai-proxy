@@ -311,6 +311,14 @@ func handleAnthropicStream(w http.ResponseWriter, body io.ReadCloser, messageID,
 			break
 		}
 
+		// 检测上游错误
+		if upstreamData.HasError() {
+			logger.LogError("Anthropic upstream error in stream: %s", upstreamData.GetErrorMessage())
+			errText := fmt.Sprintf("[上游服务错误: %s]", upstreamData.GetErrorMessage())
+			emitAnthropicTextDelta(w, flusher, &contentBlockIndex, &inThinkingBlock, &inTextBlock, &inToolUseBlock, &hasContent, errText)
+			break
+		}
+
 		// Handle thinking phase
 		if upstreamData.Data.Phase == "thinking" && upstreamData.Data.DeltaContent != "" {
 			isNewThinkingRound := false
@@ -698,6 +706,13 @@ func handleAnthropicNonStream(w http.ResponseWriter, body io.ReadCloser, message
 		}
 
 		if upstreamData.Data.Phase == "done" {
+			break
+		}
+
+		// 检测上游错误
+		if upstreamData.HasError() {
+			logger.LogError("Anthropic upstream error in non-stream: %s", upstreamData.GetErrorMessage())
+			chunks = append(chunks, fmt.Sprintf("[上游服务错误: %s]", upstreamData.GetErrorMessage()))
 			break
 		}
 

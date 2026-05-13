@@ -116,6 +116,28 @@ func handleStreamResponse(w http.ResponseWriter, body io.ReadCloser, completionI
 			continue
 		}
 
+		// 检测上游错误
+		if upstreamData.HasError() {
+			logger.LogError("Upstream error in stream: %s", upstreamData.GetErrorMessage())
+			errContent := fmt.Sprintf("[上游服务错误: %s]", upstreamData.GetErrorMessage())
+			hasContent = true
+			chunk := model.ChatCompletionChunk{
+				ID:      completionID,
+				Object:  "chat.completion.chunk",
+				Created: time.Now().Unix(),
+				Model:   modelName,
+				Choices: []model.Choice{{
+					Index:        0,
+					Delta:        &model.Delta{Content: errContent},
+					FinishReason: nil,
+				}},
+			}
+			data, _ := json.Marshal(chunk)
+			fmt.Fprintf(w, "data: %s\n\n", data)
+			flusher.Flush()
+			break
+		}
+
 		logger.LogInfo("[DEBUG-Stream] phase=%s delta_content_len=%d edit_content_len=%d", upstreamData.Data.Phase, len(upstreamData.Data.DeltaContent), len(upstreamData.Data.EditContent))
 
 		if upstreamData.Data.Phase == "done" {
@@ -615,6 +637,13 @@ func handleNonStreamResponse(w http.ResponseWriter, body io.ReadCloser, completi
 		if err := json.Unmarshal([]byte(payload), &upstreamData); err != nil {
 			logger.LogInfo("[DEBUG-NonStream] JSON parse error: %v, payload=%s", err, truncate(payload, 200))
 			continue
+		}
+
+		// 检测上游错误
+		if upstreamData.HasError() {
+			logger.LogError("Upstream error in non-stream: %s", upstreamData.GetErrorMessage())
+			chunks = append(chunks, fmt.Sprintf("[上游服务错误: %s]", upstreamData.GetErrorMessage()))
+			break
 		}
 
 		logger.LogInfo("[DEBUG-NonStream] phase=%s delta_content_len=%d edit_content_len=%d", upstreamData.Data.Phase, len(upstreamData.Data.DeltaContent), len(upstreamData.Data.EditContent))

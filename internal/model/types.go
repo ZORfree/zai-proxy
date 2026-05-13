@@ -220,7 +220,27 @@ type UpstreamData struct {
 		EditContent  string `json:"edit_content"`
 		Phase        string `json:"phase"`
 		Done         bool   `json:"done"`
+		Error        *struct {
+			Code   string `json:"code"`
+			Detail string `json:"detail"`
+		} `json:"error,omitempty"`
 	} `json:"data"`
+}
+
+// HasError checks if the upstream response contains an error
+func (u *UpstreamData) HasError() bool {
+	return u.Data.Error != nil && u.Data.Error.Code != ""
+}
+
+// GetErrorMessage returns the error message
+func (u *UpstreamData) GetErrorMessage() string {
+	if u.Data.Error == nil {
+		return ""
+	}
+	if u.Data.Error.Detail != "" {
+		return u.Data.Error.Detail
+	}
+	return u.Data.Error.Code
 }
 
 func (u *UpstreamData) GetEditContent() string {
